@@ -12,6 +12,8 @@ from gutenbergpy.gutenbergcachesettings import GutenbergCacheSettings
 from gutenbergpy.utils                  import Utils
 
 
+print("Using overridden rdfparser.py")
+
 ##
 # The rdf parser
 # noinspection PyClassHasNoInit
@@ -27,16 +29,19 @@ class RdfParser:
         result.field_sets[Fields.SUBJECT]   = ParseItem(xpath =['//dcterms:subject/rdf:Description/rdf:value/text()'])
         result.field_sets[Fields.TYPE]      = ParseItem(xpath =['//dcterms:type/rdf:Description/rdf:value/text()'])
         result.field_sets[Fields.LANGUAGE]  = ParseItem(xpath =['//dcterms:language/rdf:Description/rdf:value/text()'])
-        result.field_sets[Fields.AUTHOR]    = ParseItem(xpath =['//dcterms:creator/pgterms:agent/pgterms:alias/text()','//dcterms:creator/pgterms:agent/pgterms:name/text()'])
+        result.field_sets[Fields.AUTHOR]    = ParseItem(xpath =['//dcterms:creator/pgterms:agent/pgterms:name/text()'])
+        result.field_sets[Fields.ALIASES]    = ParseItem(xpath =['//dcterms:creator/pgterms:agent/pgterms:alias/text()'])
+#        result.field_sets[Fields.AUTHOR]    = ParseItem(xpath =['//dcterms:creator/pgterms:agent/pgterms:alias/text()','//dcterms:creator/pgterms:agent/pgterms:name/text()'])
+#        result.field_sets[Fields.ALIASES]    = ParseItem(xpath =['//dcterms:creator/pgterms:agent/pgterms:alias/text()','//dcterms:creator/pgterms:agent/pgterms:name/text()'])
         result.field_sets[Fields.BOOKSHELF] = ParseItem(xpath =['//pgterms:bookshelf/rdf:Description/rdf:value/text()'])
         result.field_sets[Fields.FILES]     = ParseItemFiles(xpath =['//dcterms:hasFormat'])
         result.field_sets[Fields.PUBLISHER] = ParseItem(xpath =['//dcterms:publisher/text()'])
         result.field_sets[Fields.RIGHTS]    = ParseItem( xpath =['//dcterms:rights/text()'])
 
-
         dirs  =  [d for d in listdir(GutenbergCacheSettings.CACHE_RDF_UNPACK_DIRECTORY) if not d.startswith("DELETE")]
         total = len(dirs)
 
+        print("Parsing RDF files, revised version...")
         for idx, dir in enumerate(dirs):
             if not str(dir).isdigit():
                 continue
@@ -45,12 +50,13 @@ class RdfParser:
             file_path = path.join(GutenbergCacheSettings.CACHE_RDF_UNPACK_DIRECTORY,dir,'pg%s.rdf'%(dir))
             doc = etree.parse(file_path,etree.ETCompatXMLParser())
 
+            book_id = len(result.books)+1
             res = Fields.FIELD_COUNT * [-1]
             for idx_field, pt in enumerate(result.field_sets):
                 if not pt.needs_book_id():
                     res[idx_field] = pt.do(doc)
                 else:
-                    res[idx_field] = pt.do(doc,idx+1)
+                    res[idx_field] = pt.do(doc,book_id)
 
             gutenberg_book_id = int(dir)
 
@@ -67,7 +73,7 @@ class RdfParser:
 
             newbook = Book(publisher_id, rights_id, language_id, bookshelf_id,
                            gutenberg_book_id, date_issued, num_downloads, res[Fields.TITLE],
-                           res[Fields.SUBJECT], type_id, res[Fields.AUTHOR], res[Fields.FILES])
+                           res[Fields.SUBJECT], type_id, res[Fields.AUTHOR], res[Fields.ALIASES], res[Fields.FILES])
 
             result.books.append(newbook)
 

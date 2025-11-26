@@ -8,6 +8,8 @@ import sqlite3
 import os
 
 
+print("Using overridden sqlitecache.py")
+
 ##
 # SQLite cache implementation
 class SQLiteCache(Cache):
@@ -23,6 +25,7 @@ class SQLiteCache(Cache):
         self.table_map[Fields.TYPE]     =   'types'
         self.table_map[Fields.LANGUAGE] =   'languages'
         self.table_map[Fields.AUTHOR]   =   'authors'
+        self.table_map[Fields.ALIASES]  =   'aliases'
         self.table_map[Fields.BOOKSHELF]=   'bookshelves'
         self.table_map[Fields.FILES]    =   '/---/'
         self.table_map[Fields.PUBLISHER]=   'publishers'
@@ -76,6 +79,8 @@ class SQLiteCache(Cache):
                     'INSERT OR IGNORE INTO downloadlinks(name,bookid,downloadtypeid) VALUES (?,?,?)'
                     , map(lambda x: (x[0], x[1], x[2]), parse_results.field_sets[Fields.FILES].setLinks))
 
+            elif idx == Fields.ALIASES:
+                self.__insert_many_field(self.table_map[Fields.ALIASES], 'name', pt.set)
             elif pt.needs_book_id():
                 self.__insert_many_field_id(self.table_map[idx], 'name', 'bookid', pt.set)
             else:
@@ -85,9 +90,10 @@ class SQLiteCache(Cache):
         total = len(parse_results.books)
 
         for idx, book in enumerate(parse_results.books):
-            Utils.update_progress_bar("SQLite progress" ,idx,total)
+            #Utils.update_progress_bar("SQLite progress" ,idx,total)
             book_id = idx +1
             self.__insertLinks(list(map(lambda x: (x,book_id) , book.authors_id)),'book_authors','authorid','bookid')
+            self.__insertLinks(list(map(lambda x: (x,book_id) , book.aliases_id)),'book_aliases','authorid','bookid')
             self.__insertLinks(list(map(lambda x: (x,book_id) , book.subjects_id)),'book_subjects','subjectid','bookid')
 
             self.cursor.execute("INSERT OR IGNORE INTO books(publisherid,dateissued,rightsid,numdownloads,languageid,bookshelveid,gutenbergbookid,typeid) "

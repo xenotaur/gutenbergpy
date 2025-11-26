@@ -59,7 +59,18 @@ CREATE TABLE `book_authors` (
 	`bookid`	INTEGER,
 	`authorid`	INTEGER
 );
+
+CREATE TABLE `book_aliases` (
+	`bookid`	INTEGER,
+	`authorid`	INTEGER
+);
+
 CREATE TABLE `authors` (
+	`id`	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+	`name`	TEXT
+);
+
+CREATE TABLE `aliases` (
 	`id`	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`name`	TEXT
 );
