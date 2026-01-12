@@ -38,7 +38,6 @@ class RdfParser:
         dirs  =  [d for d in listdir(GutenbergCacheSettings.CACHE_RDF_UNPACK_DIRECTORY) if not d.startswith("DELETE")]
         total = len(dirs)
 
-        print("Parsing RDF files, revised version...")
         for idx, dir in enumerate(dirs):
             if not str(dir).isdigit():
                 continue
