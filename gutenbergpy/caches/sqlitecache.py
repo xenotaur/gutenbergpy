@@ -87,7 +87,7 @@ class SQLiteCache(Cache):
         total = len(parse_results.books)
 
         for idx, book in enumerate(parse_results.books):
-            #Utils.update_progress_bar("SQLite progress" ,idx,total)
+            Utils.update_progress_bar("SQLite progress" ,idx,total)
             book_id = idx +1
             self.__insertLinks(list(map(lambda x: (x,book_id) , book.authors_id)),'book_authors','authorid','bookid')
             self.__insertLinks(list(map(lambda x: (x,book_id) , book.aliases_id)),'book_aliases','authorid','bookid')
