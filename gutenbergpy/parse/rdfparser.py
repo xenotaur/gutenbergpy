@@ -11,7 +11,6 @@ from gutenbergpy.parse.rdfparseresults  import RDFParseResults
 from gutenbergpy.gutenbergcachesettings import GutenbergCacheSettings
 from gutenbergpy.utils                  import Utils
 
-
 ##
 # The rdf parser
 # noinspection PyClassHasNoInit
@@ -27,12 +26,12 @@ class RdfParser:
         result.field_sets[Fields.SUBJECT]   = ParseItem(xpath =['//dcterms:subject/rdf:Description/rdf:value/text()'])
         result.field_sets[Fields.TYPE]      = ParseItem(xpath =['//dcterms:type/rdf:Description/rdf:value/text()'])
         result.field_sets[Fields.LANGUAGE]  = ParseItem(xpath =['//dcterms:language/rdf:Description/rdf:value/text()'])
-        result.field_sets[Fields.AUTHOR]    = ParseItem(xpath =['//dcterms:creator/pgterms:agent/pgterms:alias/text()','//dcterms:creator/pgterms:agent/pgterms:name/text()'])
+        result.field_sets[Fields.AUTHOR]    = ParseItem(xpath =['//dcterms:creator/pgterms:agent/pgterms:name/text()'])
+        result.field_sets[Fields.ALIASES]    = ParseItem(xpath =['//dcterms:creator/pgterms:agent/pgterms:alias/text()'])
         result.field_sets[Fields.BOOKSHELF] = ParseItem(xpath =['//pgterms:bookshelf/rdf:Description/rdf:value/text()'])
         result.field_sets[Fields.FILES]     = ParseItemFiles(xpath =['//dcterms:hasFormat'])
         result.field_sets[Fields.PUBLISHER] = ParseItem(xpath =['//dcterms:publisher/text()'])
         result.field_sets[Fields.RIGHTS]    = ParseItem( xpath =['//dcterms:rights/text()'])
-
 
         dirs  =  [d for d in listdir(GutenbergCacheSettings.CACHE_RDF_UNPACK_DIRECTORY) if not d.startswith("DELETE")]
         total = len(dirs)
@@ -68,7 +67,7 @@ class RdfParser:
 
             newbook = Book(publisher_id, rights_id, language_id, bookshelf_id,
                            gutenberg_book_id, date_issued, num_downloads, res[Fields.TITLE],
-                           res[Fields.SUBJECT], type_id, res[Fields.AUTHOR], res[Fields.FILES])
+                           res[Fields.SUBJECT], type_id, res[Fields.AUTHOR], res[Fields.ALIASES], res[Fields.FILES])
 
             result.books.append(newbook)
 
